@@ -1,21 +1,20 @@
 package app.transcribing.mobile;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -24,9 +23,13 @@ import okhttp3.Response;
 public class LoggedIn extends AppCompatActivity {
     private class Post {
         String title;
+        String image_url;
+        String sub;
 
-        Post(String title) {
+        Post(String title, String tor_full_url, String sub) {
             this.title = title;
+            this.image_url = tor_full_url;
+            this.sub = sub;
         }
     }
 
@@ -51,27 +54,33 @@ public class LoggedIn extends AppCompatActivity {
                     Post[] posts = new Post[data.length()];
                     for (int i = 0; i < data.length(); i++) {
                         JSONObject obj = data.getJSONObject(i);
-                        posts[i] = new Post(obj.getString("title"));
+                        posts[i] = new Post(obj.getString("title"), obj.getString("tor_full_url"), obj.getString("tor_subreddit"));
                     }
                     return posts;
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             } catch (IOException e) {
-                Log.e("GettingPosts", e.toString());
             }
             return new Post[]{};
         }
 
         protected void onPostExecute(Post[] result) {
-            LinearLayout posts = findViewById(R.id.scroll_linearlayout);
+            RecyclerView mRecyclerView = findViewById(R.id.recycler_view);
+
+            List<DataModel> dataModelList = new ArrayList<>();
+
             for (Post p : result) {
-                TextView tv = new TextView(getApplicationContext());
-                tv.setText(p.title);
-                tv.setTextColor(0xFFFFFFFF);
-                tv.setTextSize(20);
-                posts.addView(tv);
+                dataModelList.add(new DataModel(p.title, p.sub, p.image_url));
             }
+
+            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+            mRecyclerView.setLayoutManager(mLayoutManager);
+
+            // specify an adapter and pass in our data model list
+
+            RecyclerView.Adapter mAdapter = new MyAdapter(dataModelList, getApplicationContext());
+            mRecyclerView.setAdapter(mAdapter);
         }
 
     }
@@ -79,12 +88,14 @@ public class LoggedIn extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        Intent intent = getIntent();
+        String token = intent.getStringExtra(MainActivity.EXTRA_TOKEN);
         setContentView(R.layout.activity_logged_in);
 
-        Intent i = getIntent();
-        String token = i.getStringExtra(MainActivity.EXTRA_TOKEN);
-
         new getPosts().execute();
+
     }
 
     private static void getPosts() {

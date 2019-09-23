@@ -4,21 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
     tools:context=".LoggedIn">
 
-    <ScrollView
-        android:id="@+id/posts_view"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimary"
-        tools:layout_editor_absoluteX="156dp"
-        tools:layout_editor_absoluteY="299dp">
-
-        <LinearLayout
-            android:id="@+id/scroll_linearlayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-        </LinearLayout>
-    </ScrollView>
+        android:scrollbars="vertical" />
 </androidx.constraintlayout.widget.ConstraintLayout>

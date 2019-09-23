@@ -2,6 +2,7 @@ package app.transcribing.mobile;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -17,6 +18,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import app.transcribing.mobile.LazyLoading.ImageLoader;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ImageLoader.instance = new ImageLoader(getApplicationContext());
         tokenPrefs = getApplicationContext().getSharedPreferences("tokens", MODE_PRIVATE);
 
         setContentView(R.layout.not_logged_in);
