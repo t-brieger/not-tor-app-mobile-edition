@@ -97,8 +97,4 @@ public class LoggedIn extends AppCompatActivity {
         new getPosts().execute();
 
     }
-
-    private static void getPosts() {
-
-    }
 }

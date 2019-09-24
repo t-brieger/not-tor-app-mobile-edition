@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
+import net.dean.jraw.RedditClient;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -59,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.not_logged_in);
         if (tokenPrefs.contains("refresh_token")) {
-            useRefreshToken(token -> {
+            getAccessToken(token -> {
                 findViewById(R.id.signin).setOnClickListener(null);
                 Intent intent = new Intent(this, LoggedIn.class);
                 intent.putExtra(EXTRA_TOKEN, token);
@@ -112,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         void x(String y);
     }
 
-    public static void useRefreshToken(final callbackOneArgNoReturn cbIfSuccess, final callbackOneArgNoReturn cbIfFailure, String token) {
+    public static void getAccessToken(final callbackOneArgNoReturn cbIfSuccess, final callbackOneArgNoReturn cbIfFailure, String token) {
         OkHttpClient client = new OkHttpClient();
         String authString = CLIENT_ID + ":";
         String encodedAuthString = Base64.encodeToString(authString.getBytes(),
@@ -167,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (tokenPrefs.contains("refresh_token")) {
-            useRefreshToken(token -> {
+            getAccessToken(token -> {
                 Intent intent = new Intent(this, LoggedIn.class);
                 intent.putExtra(EXTRA_TOKEN, token);
                 startActivity(intent);

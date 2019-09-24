@@ -21,7 +21,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.widget.ImageView;
 
-import app.transcribing.mobile.MainActivity;
 import app.transcribing.mobile.R;
 
 public class ImageLoader {
@@ -40,8 +39,16 @@ public class ImageLoader {
 
     final int stub_id = R.drawable.stub;
 
+    /**
+     * this is only an approximate answer, because it assumes that the URL ends in png, jpg or jpeg if it is a picture.
+     * TODO: check for mimetype instead
+     */
+    public static boolean isSupportedImage(String url) {
+        return url.endsWith("png") || url.endsWith("jpg") || url.endsWith("jpeg");
+    }
+
     public void DisplayImage(String url, ImageView imageView) {
-        if (!(url.endsWith("png") || url.endsWith("jpg") || url.endsWith("jpeg")))
+        if (!isSupportedImage(url))
             return;
         imageViews.put(imageView, url);
         Bitmap bitmap = memoryCache.get(url);

@@ -1,6 +1,7 @@
 package app.transcribing.mobile;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
 
@@ -21,22 +24,32 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
     // View holder class whose objects represent each list item
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
-        public ImageView cardImageView;
-        public TextView titleTextView;
-        public TextView subTitleTextView;
+    static class MyViewHolder extends RecyclerView.ViewHolder {
+        private ImageView cardImageView;
+        private TextView titleTextView;
+        private TextView subTitleTextView;
+        private MaterialButton TranscribeButton;
 
-        public MyViewHolder(@NonNull View itemView) {
+        MyViewHolder(@NonNull View itemView) {
             super(itemView);
             cardImageView = itemView.findViewById(R.id.imageView);
             titleTextView = itemView.findViewById(R.id.card_title);
             subTitleTextView = itemView.findViewById(R.id.card_subtitle);
+            TranscribeButton = itemView.findViewById(R.id.action_button_1);
         }
 
-        public void bindData(DataModel dataModel, Context context) {
-            ImageLoader.instance.DisplayImage(dataModel.getImageDrawable(), cardImageView);
-            titleTextView.setText(dataModel.getTitle());
-            subTitleTextView.setText(dataModel.getSubTitle());
+        void bindData(DataModel dataModel, Context context) {
+            if (ImageLoader.isSupportedImage(dataModel.getUrl())) {
+                ImageLoader.instance.DisplayImage(dataModel.getUrl(), cardImageView);
+                titleTextView.setText(dataModel.getTitle());
+                subTitleTextView.setText(dataModel.getSubTitle());
+            } else {
+                Log.w(this.getClass().getCanonicalName(), "unsupported image type: " + dataModel.getUrl());
+                cardImageView.setVisibility(View.GONE);
+                titleTextView.setVisibility(View.GONE);
+                subTitleTextView.setVisibility(View.GONE);
+                TranscribeButton.setVisibility(View.GONE);
+            }
         }
     }
 

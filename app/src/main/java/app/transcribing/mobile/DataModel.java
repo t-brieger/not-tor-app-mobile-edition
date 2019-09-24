@@ -13,7 +13,7 @@ public class DataModel {
         this.subTitle = subtitle;
     }
 
-    public String getImageDrawable() {
+    public String getUrl() {
         return url;
     }
 
