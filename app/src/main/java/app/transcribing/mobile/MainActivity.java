@@ -2,18 +2,13 @@ package app.transcribing.mobile;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
-
-import net.dean.jraw.RedditClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,8 +23,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_TOKEN = "app.transcribing.mobile.TOKEN";

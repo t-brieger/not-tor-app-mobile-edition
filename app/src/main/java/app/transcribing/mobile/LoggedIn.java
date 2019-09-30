@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,19 +22,29 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class LoggedIn extends AppCompatActivity {
+    public static final String EXTRA_POST = "app.transcribing.mobile.POST";
+
     private class Post {
         String title;
+        String originalTitle;
         String image_url;
         String sub;
 
         Post(String title, String tor_full_url, String sub) {
             this.title = title;
+            this.originalTitle = title.split("\\|", 3)[2];
+            //remove quotes
+            this.originalTitle = this.originalTitle.substring(2, this.originalTitle.length() - 1);
             this.image_url = tor_full_url;
             this.sub = sub;
         }
     }
 
     private class getPosts extends AsyncTask<Void, Void, Post[]> {
+        Activity a;
+        getPosts(Activity a) {
+            this.a = a;
+        }
         @Override
         protected Post[] doInBackground(Void... unused) {
             OkHttpClient client = new OkHttpClient();
@@ -71,7 +82,11 @@ public class LoggedIn extends AppCompatActivity {
             List<DataModel> dataModelList = new ArrayList<>();
 
             for (Post p : result) {
-                dataModelList.add(new DataModel(p.title, p.sub, p.image_url));
+                dataModelList.add(new DataModel(p.originalTitle, p.sub, p.image_url, e -> {
+                    Intent intent = new Intent(a, single_post.class);
+                    intent.putExtra(EXTRA_POST, p.originalTitle);
+                    startActivity(intent);
+                }));
             }
 
             RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -94,7 +109,7 @@ public class LoggedIn extends AppCompatActivity {
         String token = intent.getStringExtra(MainActivity.EXTRA_TOKEN);
         setContentView(R.layout.activity_logged_in);
 
-        new getPosts().execute();
+        new getPosts(this).execute();
 
     }
 }

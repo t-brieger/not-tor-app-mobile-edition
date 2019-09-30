@@ -58,5 +58,6 @@
             app:layout_constraintTop_toBottomOf="@+id/card_subtitle"
             app:rippleColor="#494949" />
 
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

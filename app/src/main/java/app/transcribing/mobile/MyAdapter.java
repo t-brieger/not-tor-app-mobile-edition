@@ -43,6 +43,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
                 ImageLoader.instance.DisplayImage(dataModel.getUrl(), cardImageView);
                 titleTextView.setText(dataModel.getTitle());
                 subTitleTextView.setText(dataModel.getSubTitle());
+                TranscribeButton.setOnClickListener(dataModel.getOnClick());
             } else {
                 Log.w(this.getClass().getCanonicalName(), "unsupported image type: " + dataModel.getUrl());
                 cardImageView.setVisibility(View.GONE);
