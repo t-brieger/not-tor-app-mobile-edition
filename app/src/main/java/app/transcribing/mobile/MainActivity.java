@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String ACCESS_TOKEN_URL =
             "https://www.reddit.com/api/v1/access_token";
 
-    private SharedPreferences tokenPrefs;
+    static SharedPreferences tokenPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
