@@ -23,20 +23,24 @@ import okhttp3.Response;
 
 public class LoggedIn extends AppCompatActivity {
     public static final String EXTRA_POST = "app.transcribing.mobile.POST";
+    public static final String EXTRA_IMG = "app.transcribing.mobile.IMAGE_URL";
+    public static final String EXTRA_SUB = "app.transcribing.mobile.COMMUNITY";
 
     private class Post {
         String title;
         String originalTitle;
         String image_url;
         String sub;
+        String id;
 
-        Post(String title, String tor_full_url, String sub) {
+        Post(String title, String tor_full_url, String sub, String id) {
             this.title = title;
             this.originalTitle = title.split("\\|", 3)[2];
             //remove quotes
             this.originalTitle = this.originalTitle.substring(2, this.originalTitle.length() - 1);
             this.image_url = tor_full_url;
             this.sub = sub;
+            this.id = id;
         }
     }
 
@@ -65,7 +69,7 @@ public class LoggedIn extends AppCompatActivity {
                     Post[] posts = new Post[data.length()];
                     for (int i = 0; i < data.length(); i++) {
                         JSONObject obj = data.getJSONObject(i);
-                        posts[i] = new Post(obj.getString("title"), obj.getString("tor_full_url"), obj.getString("tor_subreddit"));
+                        posts[i] = new Post(obj.getString("title"), obj.getString("tor_full_url"), obj.getString("tor_subreddit"), obj.getString("name"));
                     }
                     return posts;
                 } catch (JSONException e) {
@@ -84,7 +88,10 @@ public class LoggedIn extends AppCompatActivity {
             for (Post p : result) {
                 dataModelList.add(new DataModel(p.originalTitle, p.sub, p.image_url, e -> {
                     Intent intent = new Intent(a, single_post.class);
-                    intent.putExtra(EXTRA_POST, p.originalTitle);
+                    intent.putExtra(EXTRA_POST, p.id);
+                    intent.putExtra(MainActivity.EXTRA_TOKEN, getIntent().getStringExtra(MainActivity.EXTRA_TOKEN));
+                    intent.putExtra(EXTRA_IMG, p.image_url);
+                    intent.putExtra(EXTRA_SUB, p.sub);
                     startActivity(intent);
                 }));
             }
