@@ -26,6 +26,7 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_TOKEN = "app.transcribing.mobile.TOKEN";
+    public static final String EXTRA_RTOKEN = "app.transcribing.mobile.REFRESHTOKEN";
 
     public static final String user_agent = "android:app.transcribing.mobile:0.0.1 (by /u/daoverwatchguy)";
 
@@ -37,14 +38,14 @@ public class MainActivity extends AppCompatActivity {
     private static final String CLIENT_ID = "DTam2q-mIcdJNQ";
 
     private static final String REDIRECT_URI =
-            "https%3A%2F%2Ftranscribing.app%2Freddit_callback.html"; //intent-filter in manifest
+            "https%3A%2F%2Ftranscribing.app%2Freddit_callback"; //intent-filter in manifest
 
     private static final String STATE = "rgogfauhro9a5tuz0q53thngot5rzhau";
 
     private static final String ACCESS_TOKEN_URL =
             "https://www.reddit.com/api/v1/access_token";
 
-    static SharedPreferences tokenPrefs;
+    private static SharedPreferences tokenPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.signin).setOnClickListener(null);
                 Intent intent = new Intent(this, LoggedIn.class);
                 intent.putExtra(EXTRA_TOKEN, token);
+                intent.putExtra(EXTRA_RTOKEN, tokenPrefs.getString("refresh_token", null));
                 startActivity(intent);
             }, error -> {
                 tokenPrefs.edit().remove("refresh_token").apply();
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void getTokenAndSaveToPref(String code) {
+    private void getTokenAndSaveToPref(String code, callbackOneArgNoReturn cb) {
         OkHttpClient client = new OkHttpClient();
         String authString = CLIENT_ID + ":";
         String encodedAuthString = Base64.encodeToString(authString.getBytes(),
@@ -84,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e("getRedditPermissions", "ERROR: " + e);
+                cb.x(null);
             }
 
             @Override
@@ -96,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
                     String refreshToken = data.optString("refresh_token");
 
                     tokenPrefs.edit().putString("refresh_token", refreshToken).apply();
+                    cb.x(refreshToken);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -156,19 +160,16 @@ public class MainActivity extends AppCompatActivity {
                 String state = uri.getQueryParameter("state");
                 if (STATE.equals(state)) {
                     String code = uri.getQueryParameter("code");
-                    getTokenAndSaveToPref(code);
+                    getTokenAndSaveToPref(code, token -> getAccessToken(token2 -> {
+                        Intent intent = new Intent(this, LoggedIn.class);
+                        intent.putExtra(EXTRA_TOKEN, token2);
+                        intent.putExtra(EXTRA_RTOKEN, token);
+                        startActivity(intent);
+                    }, error -> {
+                        tokenPrefs.edit().remove("refresh_token").apply();
+                    }, token));
                 }
             }
-        }
-
-        if (tokenPrefs.contains("refresh_token")) {
-            getAccessToken(token -> {
-                Intent intent = new Intent(this, LoggedIn.class);
-                intent.putExtra(EXTRA_TOKEN, token);
-                startActivity(intent);
-            }, error -> {
-                tokenPrefs.edit().remove("refresh_token").apply();
-            }, tokenPrefs.getString("refresh_token", null));
         }
     }
 

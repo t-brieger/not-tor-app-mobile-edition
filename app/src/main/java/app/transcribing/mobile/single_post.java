@@ -68,7 +68,7 @@ public class single_post extends AppCompatActivity {
                                         }
                                     }, (e) -> {
                                     },
-                                    MainActivity.tokenPrefs.getString("refresh_token", null));
+                                    getIntent().getStringExtra(MainActivity.EXTRA_RTOKEN));
                         } else {
                             Log.e(single_post.class.getCanonicalName(), "unknown problem while posting comment - error" + data.getInt("error"));
                         }
@@ -91,7 +91,14 @@ public class single_post extends AppCompatActivity {
 
     public void click_claim(View v) {
         try {
-            postComment("claim -- this is an automated action by not-tor-app-mobile, please contact me with any questions.", getIntent().getStringExtra(LoggedIn.EXTRA_POST), getIntent().getStringExtra(MainActivity.EXTRA_TOKEN), (unused) -> {
+            postComment("claim -- this is an automated action by not-tor-app-mobile, please contact me with any questions.", getIntent().getStringExtra(LoggedIn.EXTRA_TORPOST), getIntent().getStringExtra(MainActivity.EXTRA_TOKEN), (unused) -> {
+                Intent intent = new Intent(this, transcribe.class);
+                intent.putExtra(MainActivity.EXTRA_TOKEN, getIntent().getStringExtra(MainActivity.EXTRA_TOKEN));
+                intent.putExtra(MainActivity.EXTRA_RTOKEN, getIntent().getStringExtra(MainActivity.EXTRA_RTOKEN));
+                intent.putExtra(LoggedIn.EXTRA_IMG, getIntent().getStringExtra(LoggedIn.EXTRA_IMG));
+                intent.putExtra(LoggedIn.EXTRA_ORIGINALPOST, getIntent().getStringExtra(LoggedIn.EXTRA_ORIGINALPOST));
+                intent.putExtra(LoggedIn.EXTRA_TORPOST, getIntent().getStringExtra(LoggedIn.EXTRA_TORPOST));
+                startActivity(intent);
             });
         }catch (UnsupportedEncodingException e) {
             Log.e(this.getClass().getCanonicalName(), "yoínk");

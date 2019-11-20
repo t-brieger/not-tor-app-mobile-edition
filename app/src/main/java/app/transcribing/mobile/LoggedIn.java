@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,25 +23,24 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class LoggedIn extends AppCompatActivity {
-    public static final String EXTRA_POST = "app.transcribing.mobile.POST";
+    public static final String EXTRA_TORPOST = "app.transcribing.mobile.POST";
+    public static final String EXTRA_ORIGINALPOST = "app.transcribing.mobile.ORIGINALPOST";
     public static final String EXTRA_IMG = "app.transcribing.mobile.IMAGE_URL";
     public static final String EXTRA_SUB = "app.transcribing.mobile.COMMUNITY";
 
     private class Post {
-        String title;
         String originalTitle;
         String image_url;
         String sub;
-        String id;
+        String torid;
+        String originalid;
 
-        Post(String title, String tor_full_url, String sub, String id) {
-            this.title = title;
-            this.originalTitle = title.split("\\|", 3)[2];
-            //remove quotes
-            this.originalTitle = this.originalTitle.substring(2, this.originalTitle.length() - 1);
+        Post(String title, String tor_full_url, String sub, String id, String id2) {
+            this.originalTitle = title;
             this.image_url = tor_full_url;
             this.sub = sub;
-            this.id = id;
+            this.torid = id;
+            this.originalid = id2;
         }
     }
 
@@ -69,7 +69,7 @@ public class LoggedIn extends AppCompatActivity {
                     Post[] posts = new Post[data.length()];
                     for (int i = 0; i < data.length(); i++) {
                         JSONObject obj = data.getJSONObject(i);
-                        posts[i] = new Post(obj.getString("title"), obj.getString("tor_full_url"), obj.getString("tor_subreddit"), obj.getString("name"));
+                        posts[i] = new Post(obj.getString("title"), obj.getString("url"), obj.getJSONObject("subreddit").getString("display_name"), "t3_" + obj.getString("tor_id"), obj.getString("name"));
                     }
                     return posts;
                 } catch (JSONException e) {
@@ -88,8 +88,10 @@ public class LoggedIn extends AppCompatActivity {
             for (Post p : result) {
                 dataModelList.add(new DataModel(p.originalTitle, p.sub, p.image_url, e -> {
                     Intent intent = new Intent(a, single_post.class);
-                    intent.putExtra(EXTRA_POST, p.id);
+                    intent.putExtra(EXTRA_TORPOST, p.torid);
+                    intent.putExtra(EXTRA_ORIGINALPOST, p.originalid);
                     intent.putExtra(MainActivity.EXTRA_TOKEN, getIntent().getStringExtra(MainActivity.EXTRA_TOKEN));
+                    intent.putExtra(MainActivity.EXTRA_RTOKEN, getIntent().getStringExtra(MainActivity.EXTRA_RTOKEN));
                     intent.putExtra(EXTRA_IMG, p.image_url);
                     intent.putExtra(EXTRA_SUB, p.sub);
                     startActivity(intent);
@@ -111,9 +113,7 @@ public class LoggedIn extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         Intent intent = getIntent();
-        String token = intent.getStringExtra(MainActivity.EXTRA_TOKEN);
         setContentView(R.layout.activity_logged_in);
 
         new getPosts(this).execute();
