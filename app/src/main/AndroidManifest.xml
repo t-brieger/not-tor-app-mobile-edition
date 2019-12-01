@@ -10,8 +10,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".transcribe"></activity>
+        android:theme="@style/AppTheme"
+        android:testOnly="false">
+        <activity android:name=".transcribe" android:parentActivityName=".LoggedIn" />
         <activity android:name=".single_post" />
         <activity android:name=".LoggedIn" />
         <activity android:name=".MainActivity">

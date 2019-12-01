@@ -2,6 +2,7 @@ package app.transcribing.mobile;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,7 +31,7 @@ import okhttp3.Response;
 import static app.transcribing.mobile.MainActivity.user_agent;
 
 public class single_post extends AppCompatActivity {
-    private void postComment(String content, String parent, String token, MainActivity.callbackOneArgNoReturn cb) throws UnsupportedEncodingException {
+    public static void postComment(String content, String parent, String token, MainActivity.callbackOneArgNoReturn cb, Context c, Intent i) throws UnsupportedEncodingException {
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
@@ -59,16 +60,16 @@ public class single_post extends AppCompatActivity {
                         data = data.getJSONObject("json");
                     else {
                         if (data.getInt("error") == 401) {
-                            Toast.makeText(getApplicationContext(), "access token expired, getting new one", Toast.LENGTH_LONG).show();
+                            Toast.makeText(c, "access token expired, getting new one", Toast.LENGTH_LONG).show();
                             //spaghetti galore.
                             MainActivity.getAccessToken((newToken) -> {
                                         try {
-                                            postComment(content, parent, newToken, cb);
+                                            postComment(content, parent, newToken, cb, c, i);
                                         } catch (UnsupportedEncodingException e) {
                                         }
                                     }, (e) -> {
                                     },
-                                    getIntent().getStringExtra(MainActivity.EXTRA_RTOKEN));
+                                    i.getStringExtra(MainActivity.EXTRA_RTOKEN));
                         } else {
                             Log.e(single_post.class.getCanonicalName(), "unknown problem while posting comment - error" + data.getInt("error"));
                         }
@@ -99,7 +100,8 @@ public class single_post extends AppCompatActivity {
                 intent.putExtra(LoggedIn.EXTRA_ORIGINALPOST, getIntent().getStringExtra(LoggedIn.EXTRA_ORIGINALPOST));
                 intent.putExtra(LoggedIn.EXTRA_TORPOST, getIntent().getStringExtra(LoggedIn.EXTRA_TORPOST));
                 startActivity(intent);
-            });
+                finish();
+            }, getApplicationContext(), getIntent());
         }catch (UnsupportedEncodingException e) {
             Log.e(this.getClass().getCanonicalName(), "yoínk");
         }
@@ -121,6 +123,7 @@ public class single_post extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_single_post);
 
         ImageLoader.instance.DisplayImage(getIntent().getStringExtra(LoggedIn.EXTRA_IMG), findViewById(R.id.preview_singlepost));
